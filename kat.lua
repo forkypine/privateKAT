@@ -1014,7 +1014,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	SendMessage({
 		TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 		NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
-		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded Version 0.0.6"},
+		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded Version 0.0.1"},
 	})
 
 

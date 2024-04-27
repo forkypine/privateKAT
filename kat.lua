@@ -1,85 +1,118 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
 
 local KATGUI = Instance.new("ScreenGui")
+
+--Properties:
 
 KATGUI.Name = "KATGUI"
 KATGUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 KATGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 KATGUI.ResetOnSpawn = false
 
-local old
-
-old = hookfunction(getrenv().tick, function()
-	return old() * _G.TICKSPEED
-end)
-
+-- Module Scripts:
 
 local fake_module_scripts = {}
 
-do
+do -- KATGUI.ModuleScript
 	local script = Instance.new('ModuleScript', KATGUI)
 	local function module_script()
 		local crypt = {}
-		setmetatable(crypt, {__index = function() return function(a) return a end end})
+		
+		setmetatable(crypt, {
+			__index = function(_, key)
+				return function(a) return a end 
+			end
+		})
+		
+		function crypt.encrypt(text, key)
+			key = key or 3 
+			local result = ""
+			for i = 1, #text do
+				local char = text:sub(i, i)
+				if char >= "A" and char <= "Z" then
+					result = result .. string.char((string.byte(char) - 65 + key) % 26 + 65)
+				elseif char >= "a" and char <= "z" then
+					result = result .. string.char((string.byte(char) - 97 + key) % 26 + 97)
+				else
+					result = result .. char 
+				end
+			end
+			return result
+		end
+		
+		function crypt.decrypt(ciphertext, key)
+			key = key or 3 
+			return crypt.encrypt(ciphertext, -key) 
+		end
+		
 		local Serializer = loadstring(game:HttpGet("https://pastebin.com/raw/tXE7TTMM", true))()
-
-
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Network = {}
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Player = Players.LocalPlayer
-local ReplicateSound = ReplicatedStorage.GameEvents.Misk.ReplicateSound
-local Binds = {}
-
-function Network.Send(_, Topic, ...)
-    ReplicateSound:FireServer(
-        {nil,nil,nil,{}},
-        crypt.encrypt(
-            Topic, Topic
-        ),
-        crypt.encrypt(
-            Serializer:Serialize({...}),
-            Topic
-        )
-    )
-end
-
-function Network:BindToTopic(Topic, Callback)
-    Binds[Topic] = Binds[Topic] or {}
-    table.insert(Binds[Topic], Callback)
-end
-
-function Network.SendToSelf(_, Topic, ...)
-    firesignal(ReplicateSound.OnClientEvent,
-        {nil,nil,nil,{}},
-        crypt.encrypt(
-            Topic, Topic
-        ),
-        crypt.encrypt(
-            Serializer:Serialize({...}),
-            Topic
-        )
-    )
-end
-
-ReplicateSound.OnClientEvent:Connect(function(_, Topic, Data)
-    if not Topic then return end
-    for i,v in pairs(Binds) do
-        if crypt.decrypt(Topic, i) == i then
-            local DecData = Serializer:Deserialize(crypt.decrypt(Data, i))
-
-			firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, DecData, true, true)
-        end
-    end
-end)
-
-return Network
-end
+		
+		
+		
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Network = {}
+		local Players = game:GetService("Players")
+		local Player = Players.LocalPlayer
+		local ReplicateSound = ReplicatedStorage.GameEvents.Misk.ReplicateSound
+		local Binds = {}
+		
+		function Network.Send(_, Topic, ...)
+			ReplicateSound:FireServer(
+				{nil,nil,nil,{}},
+				crypt.encrypt(
+					Topic, Topic
+				),
+				crypt.encrypt(
+					Serializer:Serialize({...}), 
+					Topic
+				)
+			)
+		end
+		
+		function Network:BindToTopic(Topic, Callback)
+			Binds[Topic] = Binds[Topic] or {}
+			table.insert(Binds[Topic], Callback)
+		end
+		
+		function Network.SendToSelf(_, Topic, ...)
+			firesignal(ReplicateSound.OnClientEvent,
+				{nil,nil,nil,{}},
+				crypt.encrypt(
+					Topic, Topic
+				),
+				crypt.encrypt(
+					Serializer:Serialize({...}), 
+					Topic
+				)
+			)
+		end
+		
+		ReplicateSound.OnClientEvent:Connect(function(_, Topic, Data)
+			if not Topic then return end
+			for i,v in pairs(Binds) do
+				if crypt.decrypt(Topic, i) == i then
+					local DecData = Serializer:Deserialize(crypt.decrypt(Data, i))
+					
+					firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, DecData, true, true) 
+					for _,v in pairs(v) do
+						print(v or " ")
+					end
+				end
+			end
+		end)
+		
+		return Network
+	end
 	fake_module_scripts[script] = module_script
 end
 
-local function ZIMB_fake_script() -- KATGUI.LocalScript
+
+-- Scripts:
+
+local function WOEE_fake_script() -- KATGUI.LocalScript 
 	local script = Instance.new('LocalScript', KATGUI)
 	local req = require
 	local require = function(obj)
@@ -97,9 +130,8 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 	local prefixA = ">"
 	local lrtdplayers = {}
-	local Serializer = loadstring(game:HttpGet("https://pastebin.com/raw/tXE7TTMM", true))()
-
-
+	
+	
 	local function shuffle(tbl)
 		local len = #tbl
 		for i = len, 2, -1 do
@@ -108,7 +140,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 		end
 		return tbl
 	end
-
+	
 	local CommandInfo = {
 		lrt = {Description = "loop removes the specified players tools", Name = "lrt"},
 		unlrt = {Description = "stops the loop removal of the specified players tools", Name = "unlrt"},
@@ -131,9 +163,8 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 		setname = {Description = "set your exploiterchat name"},
 		tickspeed = {Description = "change the games speed"}
 	}
-
-
-
+	
+	
 	KATFrame.Parent = ParentThing.Parent
 	KATFrame.Name = "KATFrame"
 	KATFrame.BackgroundColor3 = Color3.new(0,0,0)
@@ -141,7 +172,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	KATFrame.Size = UDim2.new(ParentThing.Parent.Size.X.Scale , 14, 15.64, 14)
 	KATFrame.Position = UDim2.new(ParentThing.Parent.Position.X.Scale , -7, ParentThing.Parent.Position.Y.Scale, -7)
 	KATFrame.Visible = false
-
+	
 	local messageName = Instance.new("TextLabel")
 	messageName.Name = "messageName"
 	messageName.Parent = KATFrame
@@ -154,7 +185,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	messageName.Font = Enum.Font.Arial
 	messageName.TextXAlignment = Enum.TextXAlignment.Left
 	messageName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local radioName = Instance.new("TextLabel")
 	radioName.Name = "radioName"
 	radioName.Parent = KATFrame
@@ -167,7 +198,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	radioName.Font = Enum.Font.Arial
 	radioName.TextXAlignment = Enum.TextXAlignment.Left
 	radioName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local nukeName = Instance.new("TextLabel")
 	nukeName.Name = "nukeName"
 	nukeName.Parent = KATFrame
@@ -180,7 +211,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	nukeName.Font = Enum.Font.Arial
 	nukeName.TextXAlignment = Enum.TextXAlignment.Left
 	nukeName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local stopradio = Instance.new("TextLabel")
 	stopradio.Name = "stopradio"
 	stopradio.Parent = KATFrame
@@ -193,8 +224,8 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	stopradio.Font = Enum.Font.Arial
 	stopradio.TextXAlignment = Enum.TextXAlignment.Left
 	stopradio.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
-
+	
+	
 	local helpCommand = Instance.new("TextLabel")
 	helpCommand.Name = "helpCommand"
 	helpCommand.Parent = KATFrame
@@ -207,7 +238,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	helpCommand.Font = Enum.Font.Arial
 	helpCommand.TextXAlignment = Enum.TextXAlignment.Left
 	helpCommand.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local settagName = Instance.new("TextLabel")
 	settagName.Name = "settagName"
 	settagName.Parent = KATFrame
@@ -220,7 +251,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	settagName.Font = Enum.Font.Arial
 	settagName.TextXAlignment = Enum.TextXAlignment.Left
 	settagName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local lrtName = Instance.new("TextLabel")
 	lrtName.Name = "lrtName"
 	lrtName.Parent = KATFrame
@@ -233,7 +264,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	lrtName.Font = Enum.Font.Arial
 	lrtName.TextXAlignment = Enum.TextXAlignment.Left
 	lrtName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local credits = Instance.new("TextLabel")
 	credits.Name = "credits"
 	credits.Parent = KATFrame
@@ -246,7 +277,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	credits.Font = Enum.Font.Arial
 	credits.TextXAlignment = Enum.TextXAlignment.Left
 	credits.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local unlrt = Instance.new("TextLabel")
 	unlrt.Name = "unlrt"
 	unlrt.Parent = KATFrame
@@ -259,7 +290,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	unlrt.Font = Enum.Font.Arial
 	unlrt.TextXAlignment = Enum.TextXAlignment.Left
 	unlrt.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local trade = Instance.new("TextLabel")
 	trade.Name = "trade"
 	trade.Parent = KATFrame
@@ -272,7 +303,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	trade.Font = Enum.Font.Arial
 	trade.TextXAlignment = Enum.TextXAlignment.Left
 	trade.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local loopnuke = Instance.new("TextLabel")
 	loopnuke.Name = "loopNuke"
 	loopnuke.Parent = KATFrame
@@ -285,7 +316,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	loopnuke.Font = Enum.Font.Arial
 	loopnuke.TextXAlignment = Enum.TextXAlignment.Left
 	loopnuke.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local unloopnuke = Instance.new("TextLabel")
 	unloopnuke.Name = "unloopNuke"
 	unloopnuke.Parent = KATFrame
@@ -298,7 +329,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	unloopnuke.Font = Enum.Font.Arial
 	unloopnuke.TextXAlignment = Enum.TextXAlignment.Left
 	unloopnuke.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local prefixC = Instance.new("TextLabel")
 	prefixC.Name = "prefixName"
 	prefixC.Parent = KATFrame
@@ -311,7 +342,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	prefixC.Font = Enum.Font.Arial
 	prefixC.TextXAlignment = Enum.TextXAlignment.Left
 	prefixC.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local listbackpackName = Instance.new("TextLabel")
 	listbackpackName.Name = "listbackpackName"
 	listbackpackName.Parent = KATFrame
@@ -324,7 +355,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	listbackpackName.Font = Enum.Font.Arial
 	listbackpackName.TextXAlignment = Enum.TextXAlignment.Left
 	listbackpackName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local dropknife = Instance.new("TextLabel")
 	dropknife.Name = "dropknifeName"
 	dropknife.Parent = KATFrame
@@ -337,7 +368,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	dropknife.Font = Enum.Font.Arial
 	dropknife.TextXAlignment = Enum.TextXAlignment.Left
 	dropknife.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
 	local loopdropknife = Instance.new("TextLabel")
 	loopdropknife.Name = "loopdropknifeName"
 	loopdropknife.Parent = KATFrame
@@ -350,58 +381,59 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	loopdropknife.Font = Enum.Font.Arial
 	loopdropknife.TextXAlignment = Enum.TextXAlignment.Left
 	loopdropknife.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
-	local setnameName = Instance.new("TextLabel")
-	setnameName.Name = "setnameName"
-	setnameName.Parent = KATFrame
-	setnameName.BackgroundTransparency = 1
-	setnameName.TextColor3 = Color3.new(1,1,1)
-	setnameName.Text = ">setname [name]"
-	setnameName.Position = UDim2.new(0,0,0.977,0)
-	setnameName.Size = UDim2.new(0.39, 0, 0.057, 0)
-	setnameName.TextSize = 14
-	setnameName.Font = Enum.Font.Arial
-	setnameName.TextXAlignment = Enum.TextXAlignment.Left
-	setnameName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
-	local tickspeedName = Instance.new("TextLabel")
-	tickspeedName.Name = ">tickspeedName"
-	tickspeedName.Parent = KATFrame
-	tickspeedName.BackgroundTransparency = 1
-	tickspeedName.TextColor3 = Color3.new(1,1,1)
-	tickspeedName.Text = ">tickspeed [speed]"
-	tickspeedName.Position = UDim2.new(0,0,1.032,0)
-	tickspeedName.Size = UDim2.new(0.39, 0, 0.057, 0)
-	tickspeedName.TextSize = 14
-	tickspeedName.Font = Enum.Font.Arial
-	tickspeedName.TextXAlignment = Enum.TextXAlignment.Left
-	tickspeedName.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
-
+	
+	local setname = Instance.new("TextLabel")
+	setname.Name = "setnameName"
+	setname.Parent = KATFrame
+	setname.BackgroundTransparency = 1
+	setname.TextColor3 = Color3.new(1,1,1)
+	setname.Text = ">setname [name]"
+	setname.Position = UDim2.new(0,0,0.977,0)
+	setname.Size = UDim2.new(0.39, 0, 0.057, 0)
+	setname.TextSize = 14
+	setname.Font = Enum.Font.Arial
+	setname.TextXAlignment = Enum.TextXAlignment.Left
+	setname.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	
+	local tickspeed = Instance.new("TextLabel")
+	tickspeed.Name = "tickspeed"
+	tickspeed.Parent = KATFrame
+	tickspeed.BackgroundTransparency = 1
+	tickspeed.TextColor3 = Color3.new(1,1,1)
+	tickspeed.Text = ">tickspeed [speed]"
+	tickspeed.Position = UDim2.new(0,0,1.032,0)
+	tickspeed.Size = UDim2.new(0.39, 0, 0.057, 0)
+	tickspeed.TextSize = 14
+	tickspeed.Font = Enum.Font.Arial
+	tickspeed.TextXAlignment = Enum.TextXAlignment.Left
+	tickspeed.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+	
+	
 	local confirmedPlayers = {}
 	ParentThing.ChatBar.FocusLost:Connect(function()
 		KATFrame.Visible = false
 	end)
-
+	
 	local function SendMessage(Data, tag, name, text)
 		--print(Data)
-		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)
+		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)  
 	end
-
-
+	
+	
 	local function sendNotification(message)
 		game.StarterGui:SetCore("SendNotification", {
 			Title = "Notification";
 			Text = message;
-			Duration = 5;
+			Duration = 5; 
 		})
 	end
-
+	
 	local confirmedPlayers = {}
-
+	
 	local function ConfirmDestruction(plr, weaponName)
 		local backpack = plr:FindFirstChild("Backpack")
 		local character = plr.Character
-
+	
 		if backpack then
 			local weaponInBackpack = backpack:FindFirstChild(weaponName)
 			if weaponInBackpack then
@@ -411,7 +443,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				end
 			end
 		end
-
+	
 		if character then
 			local weaponInCharacter = character:FindFirstChild(weaponName)
 			if weaponInCharacter then
@@ -420,7 +452,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 					clientEvent:FireServer("ConfirmDestruction", {})
 				end
 			end
-
+	
 			local workspaceWeapon = character:FindFirstChild(weaponName)
 			if workspaceWeapon then
 				local clientEvent = workspaceWeapon:FindFirstChild("ClientEvent")
@@ -430,23 +462,23 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end
 		end
 	end
-
+	
 	local function deleteWeapons(player, tool)
 		if player then
 			ConfirmDestruction(player, "Knife")
 			ConfirmDestruction(player, "Revolver")
 		end
 	end
-
+	
 	local function DeleteTool(player, tool)
 		if player then
 			ConfirmDestruction(player, tool)
 		end
 	end
-
+	
 	local function nukeFunction(intensity)
 		local amount = 1 * intensity
-
+	
 		local args = {
 			[1] = "ReplicateGearEffect",
 			[2] = {
@@ -464,16 +496,16 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				}
 			}
 		}
-
+	
 		local fireremotebackpack
 		local firemote
 		local player = game.Players.LocalPlayer
-
+	
 		if player.Backpack then
 			local Dice = player.Backpack:FindFirstChild("Dice")
 			if Dice then
 				fireremotebackpack = Dice:FindFirstChild("ClientEvent")
-
+	
 				for i = 1, amount do
 					fireremotebackpack:FireServer(unpack(args))
 				end
@@ -481,7 +513,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				local DiceWorkSpace = player.Character:FindFirstChild("Dice")
 				if DiceWorkSpace then
 					firemote = DiceWorkSpace:FindFirstChild("ClientEvent")
-
+	
 					for i = 1, amount do
 						firemote:FireServer(unpack(args))
 					end
@@ -489,9 +521,9 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end
 		end
 	end
-
+	
 	local IsLooping = false
-
+	
 	local function loopnukeFunction(enableLoop)
 		if enableLoop then
 			nukeFunction(6000)
@@ -502,60 +534,60 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			print("loop stopped.")
 		end
 	end
-
-
+	
+	
 	local function removeTools(player)
 		if lrtdplayers[player.Name] then
 			deleteWeapons(player)
 		end
 	end
-
+	
 	local cmds = {}
-
-
+	
+	
 	local function loopDelete(player)
 		while lrtdplayers[player.Name] do
 			removeTools(player)
-
+	
 			if not lrtdplayers[player.Name] then
 				break
 			end
 			wait(1)
 		end
 	end
-
+	
 	local loopedrt = {}
-
+	
 	local function loopDeleteTool(player, tool)
 		while lrtdplayers[player.Name] do
 			DeleteTool(player, tool)
-
+	
 			if not lrtdplayers[player.Name] then
 				break
 			end
 			wait(1)
 		end
 	end
-
+	
 	local tag
 	local name
-
-
-
+	
+	
+	
 	local commands = {
-
+	
 		settag = {
 			func = function(TagName)
 				tag = TagName
-
-
+	
+	
 				SendMessage({
 					TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 					NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
 					CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "changed exploiter chat tag to "..TagName},
 				})
 			end,
-
+	
 			aliases = {"st", "sett"}
 		},
 		lrt = {
@@ -563,9 +595,9 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				local player = game.Players:FindFirstChild(playerName)
 				if player then
 					lrtdplayers[playerName] = true
-
+	
 					loopDelete(player)
-
+	
 					SendMessage({
 						TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 						NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -577,22 +609,22 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"lt", "loopremovetools"}
 		},
-
-
+	
+	
 		removetools = {
 			func = function(player, tool, looped)
-
-
-
+	
+	
+	
 				if tool == "revolver" then
 					tool = "Revolver"
 				elseif tool == "knife" then
 					tool = "Knife"
 				end
-
-
+	
+	
 				local ActualName = game.Players:FindFirstChild(player)
-
+	
 				if not ActualName then
 					for _, p in ipairs(game.Players:GetPlayers()) do
 						if p.Name:lower() == player:lower() then
@@ -601,31 +633,31 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 						end
 					end
 				end
-
+	
 				print(player.Name)
-
+	
 				if player then
 					tool = player.Backpack[tool] or player.Character[tool]
 					if tool and not looped then
 						DeleteTool(player, tool)
 					elseif tool and looped then
 						loopedrt[player.Name] = true
-
+	
 						loopDeleteTool(player, tool)
 					end
 				end
 			end,
-
+	
 			aliases = {"rt"}
 		},
-
-
+	
+	
 		dupe = {
 			func = function(Enabled)
-
+	
 			end,
 		},
-
+	
 		playradio = {
 			func = function(audioID, volume, looping)
 				local soundData = {
@@ -636,29 +668,29 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 					tonumber(tonumber(volume)),
 					looping
 				}
-
+	
 				game.ReplicatedStorage.GameEvents.Misk.PlaySound:FireServer(unpack(soundData))
 			end,
 			aliases = {"pr"}
 		},
-
+	
 		stopradio = {
 			func = function()
 				local RadioEvent = game.ReplicatedStorage.GameEvents.Misk.ReplicateSoundStop:FireServer()
 			end,
 			aliases = {"sr"}
 		},
-
-
+	
+	
 		exploiterchat = {
 			func = function(message)
 				local player = game.Players.LocalPlayer
 				local remoteEvent = EData.Parent.Misk.ReplicateSound
-
-
+	
+	
 			end,
 		},
-
+	
 		credits = {
 			func = function()
 				SendMessage({
@@ -669,14 +701,14 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {}
 		},
-
+	
 		unlrt = {
 			func = function(playerName)
 				if playerName == "all" or playerName == "All" then
 					for _, plr in pairs(game.Players:GetPlayers()) do
 						local player = plr.Name
 						lrtdplayers[plr.Name] = false
-
+	
 						SendMessage({
 							TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 							NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -687,8 +719,8 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 					local player = game.Players:FindFirstChild(playerName)
 					if player then
 						lrtdplayers[playerName] = false
-						loopedrt[playerName] = false
-
+						loopedrt[playerName] = false	
+	
 						SendMessage({
 							TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 							NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -699,35 +731,35 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"unloopremovetools", "ulrt", "unrt"}
 		},
-
+	
 		trade = {
 			func = function(playerName)
 				local player = game.Players[playerName]
 				local fireRemote = game.ReplicatedStorage.GameEvents.Misk.TradeRequest
-
+	
 				fireRemote:FireServer(player.Name)
 			end,
 			aliases = {}
 		},
-
+	
 		nuke = {
 			func = function(intensity)
 				nukeFunction(tonumber(intensity))
-
+	
 				SendMessage({
 					TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 					NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
 					CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "nuked the server with an intensity of "..intensity}
 				})
 			end,
-
+	
 			aliases = {}
 		},
-
+	
 		loopnuke = {
 			func = function()
 				loopnukeFunction(true)
-
+	
 				SendMessage({
 					TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 					NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -736,11 +768,11 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"lnuke", "ln"}
 		},
-
+	
 		unloopnuke = {
 			func = function()
 				loopnukeFunction(false)
-
+	
 				SendMessage({
 					TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 					NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -749,25 +781,25 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"unln", "uln", "ulnuke"}
 		},
-
-
+	
+	
 		setprefix = {
 			func = function(prefixChangedTo)
 				prefixA = prefixChangedTo
 			end,
 			aliases = {"sp", "spx", "prefix"}
 		},
-
-
-
+	
+	
+	
 		dropknife = {
 			func = function(player)
-
+	
 				player = game.Players[player]
-
+	
 				if player then
 					local char = player.Character
-
+	
 					if char then
 						local knife = char:FindFirstChild("Knife")
 						if knife then
@@ -783,15 +815,15 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"dk"}
 		},
-
+	
 		loopdropknife = {
 			func = function(player)
-
+	
 				player = game.Players[player]
-
+	
 				if player then
 					local char = player.Character
-
+	
 					if char then
 						local knife = char:FindFirstChild("Knife")
 						if knife then
@@ -809,24 +841,24 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			end,
 			aliases = {"ldk"}
 		},
-
+	
 		test1 = {
 			func = function(NameForPlayer)
-
+	
 				local player = game.Players[NameForPlayer]
 				EData.RequestDisplayInfo:FireServer(player.Name)
-
-
+	
+	
 				local Connection; Connection = EData.RequestDisplayInfo.OnClientEvent:Connect(function(p, data)
 					if p == player then
 						local Items = data.Items
 						local ItemS = ""
-
+	
 						for _, v in pairs(Items) do
 							ItemS = ItemS .. ":" .. v[1] .. ":"
 						end
-
-
+	
+	
 						SendMessage({
 							TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 							NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -839,21 +871,21 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 		},
 		test2 = {
 			func = function(NameForPlayer)
-
+	
 				local player = game.Players[NameForPlayer]
 				EData.RequestDisplayInfo:FireServer(player.Name)
-
-
+	
+	
 				local Connection; Connection = EData.RequestDisplayInfo.OnClientEvent:Connect(function(p, data)
 					if p == player then
 						local Items = data.Lvl
 						local ItemS = ""
-
+	
 						for _, v in pairs(Items) do
 							ItemS = ItemS .. ":" .. v[1] .. ":"
 						end
-
-
+	
+	
 						SendMessage({
 							TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 							NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -862,28 +894,28 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 					end
 				end)
 			end,
-
+	
 			aliases = {"t2"}
 		},
-
-
+	
+	
 		listbackpack = {
 			func = function(player)
 				player = game.Players[player]
-
+	
 				if player then
 					EData.RequestDisplayInfo:FireServer(player.Name)
-
+	
 					local Connection; Connection = EData.RequestDisplayInfo.OnClientEvent:Connect(function(p, data)
 						if p == player then
 							local Inv = data.Inventory
-
+	
 							local InvS = ""
-
+	
 							for _, v in pairs(Inv) do
 								InvS = InvS .. ":" .. v[1] .. ":"
 							end
-
+	
 							SendMessage({
 								TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 								NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
@@ -894,13 +926,13 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				end
 			end,
 			aliases = {"lbk", "listinv", "lb", "li"}
-		},
-
-
+		},	
+	
+	
 		help = {
 			func = function(commands, command)
 				local foundCommand = nil
-
+	
 				for cmd, cmdData in pairs(commands) do
 					if cmd == command or (cmdData.aliases and table.find(cmdData.aliases, command)) then
 						foundCommand = cmd
@@ -910,7 +942,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				if foundCommand then
 					local description = CommandInfo[foundCommand].Description
 					local aliases = table.concat(commands[foundCommand].aliases or {}, ", ")
-
+	
 					local message = description .. ". Aliases: " .. (aliases ~= "" and aliases or "None")
 					SendMessage({
 						TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
@@ -925,55 +957,54 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 					})
 				end
 			end,
-
+	
 			aliases = {}
 		},
-
-
+		
 		setname = {
 			func = function(Name)
 				name = Name
 			end,
-
-			aliases = {"sn", "setn", "name", "n"}
+			
+			aliases = {"sn", "name"}
 		},
-
+		
 		tickspeed = {
-			func = function(SpeedFortick)
-				if tonumber(SpeedFortick) then
-					_G.TICKSPEED = tonumber(SpeedFortick)
+			func = function(tickSpeed)
+				if tonumber(tickSpeed) then
+					_G.TICKSPEED = tonumber(tickSpeed)
 				end
 			end,
-
-			aliases = {"ts", "s", "speed"}
-		},
-
+		}
 	}
-
-
-	local function ChatSendMessage(name, tag, msg, Data)
-
+	
+	
+	local function ChatSendMessage(placeName, tag, msg, Data)
+	
 		Data = {
 			TG = {COL = Color3.fromRGB(45,45,45), TXT = tag or "exploiter chat"},
-			NM = {COL = Color3.fromRGB(180,180,180), TXT = name or game.Players.LocalPlayer.Name},
+			NM = {COL = Color3.fromRGB(180,180,180), TXT = placeName or game.Players.LocalPlayer.Name},
 			CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = msg},
 		}
-
-		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)
-
-		network:Send("ExploiterChat", Data)
-
-		network:BindToTopic("ExploiterChat", Data)
+		--print(Data)
+		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true) 
+		network.Send("ExploiterChat", Data)
+		
+		network:BindToTopic("ExploiterChat", function(D)
+			firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, D, true, true) 
+		end)
 	end
-
-
-
+	
+	
+	
+	
+	
 	ParentThing.ChatBar.FocusLost:Connect(function(enterPressed)
 		local text = ParentThing.ChatBar.Text
-
+	
 		if enterPressed and string.sub(text, 1, 1) == prefixA then
 			local command, argumentsStr = text:match(prefixA .. "(%w+)%s*(.*)")
-
+	
 			if command then
 				local foundCommand = false
 				for cmd, data in pairs(commands) do
@@ -984,8 +1015,8 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 						for arg in argumentsStr:gmatch("%S+") do
 							table.insert(arguments, arg)
 						end
-
-
+	
+	
 						if command ~= "help" then
 							data.func(argumentsStr)
 							print("Command: " .. command .. ", Arguments: " .. argumentsStr)
@@ -994,30 +1025,30 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 						end
 					end
 				end
-
+	
 				if not foundCommand then
-					local message = text:match(prefixA .. "%s*(.*)")
-
+					local message = text:match(prefixA .. "%s*(.*)") 
+	
 					if message then
 						ParentThing.ChatBar.Text = ""
-						ChatSendMessage(game.Players.LocalPlayer.Name, tag, message)
+						ChatSendMessage(name, tag, message)
 					end
 				end
 			end
 		end
 	end)
-
-
-
-
-
+	
+	
+	
+	
+	
 	SendMessage({
 		TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 		NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
-		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded Version 0.0.3"},
+		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded".. " ".. "Version 1.0.3"},
 	})
-
-
+	
+	
 	local commandLabels = {
 		["7777"]= {label = "messageName", yPos = 0.095}, --semi works
 		playradio = {label = "radioName", yPos = 0.15}, --broke somehow!?
@@ -1034,23 +1065,23 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 		stopradio = {label = "stopradio", yPos = 0.756}, --should work
 		listbackpack = {label = "listbackpackName", yPos = 0.811}, --untested, should work
 		dropknife = {label = "dropknifeName", yPos = 0.867}, --untested, should work
-		loopdropknife = {label = "loopdropknifeName", yPos = 0.922}, --untested, should work
-		setname = {label = "setnameName", yPos = 0.977}, --works just fine
-		tickspeed = {label = "tickspeedName", yPos = 1.032} -- ?
+		loopdropknife = {label = "loopdropknifeName", yPos = 0.921}, --untested, should work
+		tickspeed = {label = "tickspeed", yPos = 0.977}, -- probably wont work first try
+		setname = {label = "setnameName", yPos = 1.032}
 	}
-
-
+	
+	
 	local foundLabels = {}
 	local notFoundLabels = {}
-
+	
 	ParentThing.ChatBar:GetPropertyChangedSignal("Text"):Connect(function()
 		local text = ParentThing.ChatBar.Text
 		local searchText = text:sub(#prefixA + 1):lower()
 		KATFrame.Visible = text:sub(1, #prefixA) == prefixA
-
+	
 		foundLabels = {}
 		notFoundLabels = {}
-
+	
 		if text == prefixA then
 			for command, data in pairs(commandLabels) do
 				KATFrame[data.label].Visible = true
@@ -1081,7 +1112,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 							table.insert(notFoundLabels, cmd)
 						end
 					end
-				else
+				else 
 					local commandWithoutArg = searchText:match("(%S+)")
 					if commandWithoutArg then
 						for cmd, data in pairs(commandLabels) do
@@ -1109,7 +1140,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				end
 			end
 		end
-
+	
 		local yPos = 0.095
 		if #foundLabels == 0 then
 			for command, data in pairs(commandLabels) do
@@ -1123,13 +1154,13 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 				KATFrame[labelData.label].Position = UDim2.new(0, 0, yPos, 0)
 				yPos = yPos + 0.055
 			end
-
+	
 			for _, command in ipairs(notFoundLabels) do
 				local labelData = commandLabels[command]
 				KATFrame[labelData.label].Visible = false
 			end
 		end
 	end)
-
+	
 end
-coroutine.wrap(ZIMB_fake_script)()
+coroutine.wrap(WOEE_fake_script)()

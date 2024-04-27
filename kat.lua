@@ -6,6 +6,8 @@ KATGUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 KATGUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 KATGUI.ResetOnSpawn = false
 
+local old
+
 old = hookfunction(getrenv().tick, function()
 	return old() * _G.TICKSPEED
 end)
@@ -957,10 +959,11 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 			CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = msg},
 		}
 
-		--print(Data)
 		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)
 
 		network:Send("ExploiterChat", Data)
+
+		network:BindToTopic("ExploiterChat", Data)
 	end
 
 
@@ -1011,7 +1014,7 @@ local function ZIMB_fake_script() -- KATGUI.LocalScript
 	SendMessage({
 		TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 		NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
-		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded".. " ".. "Version HAPPY BIRTHDAY, AMARI>;3 :tire: :pianobreaker: .2"},
+		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded Version 0.0.6"},
 	})
 
 

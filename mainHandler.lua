@@ -6,6 +6,8 @@ local function GetFile(Branch, FileName)
 		Url = FilePath,
 		Method = "GET"
 	}).Body
+
+        print(FilePath)
 end
 
 getgenv().loadrepo = function(Branch, FileName)

@@ -1,7 +1,6 @@
 local function CreateLabels()
 	local gameEvents = game.ReplicatedStorage.GameEvents
 	local EData = gameEvents.Data
-	local network = require(script.Parent.ModuleScript)
 	local KATFrame = Instance.new("Frame")
 	local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 	local prefixA = ">"

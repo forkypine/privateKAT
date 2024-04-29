@@ -1,5 +1,20 @@
+local function GetFile(Branch, FileName)
+	local FileSplit = string.split(FileName, ".")
+	local FilePath = "https://raw.githubusercontent.com/forkypine/privateKAT/" .. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
+
+	return syn.request({
+		Url = FilePath,
+		Method = "GET"
+	}).Body
+end
+
+getgenv().loadrepo = function(Branch, FileName)
+	return loadstring(assert(GetFile(Branch, FileName), "File Not Found"))
+end)
+
+local Serializer = loadrepo("main", "Serializer")
 local crypt = {}
-local Serializer = loadstring(game:HttpGet("https://pastebin.com/raw/tXE7TTMM", true))()
+
 
 setmetatable(crypt, {
 	__index = function(_, key)

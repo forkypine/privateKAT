@@ -1,17 +1,32 @@
 local function GetFile(Branch, FileName)
-	local FileSplit = string.split(FileName, ".")
-	local FilePath = "https://raw.githubusercontent.com/forkypine/privateKAT/" .. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
+    local FileSplit = string.split(FileName, ".")
+    local FilePath = "https://raw.githubusercontent.com/forkypine/privateKAT/" .. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
+    
+    local response = syn.request({
+        Url = FilePath,
+        Method = "GET"
+    })
 
-	return syn.request({
-		Url = FilePath,
-		Method = "GET"
-	}).Body
-
-        print(FilePath)
+    if response.Success then
+        return response.Body
+    else
+        print("Error fetching file:", response.StatusCode, response.Body)
+        return nil
+    end
 end
 
 getgenv().loadrepo = function(Branch, FileName)
-	return loadstring(assert(GetFile(Branch, FileName), "File Not Found"))
+    local fileContent = GetFile(Branch, FileName)
+    if fileContent then
+        local chunk, errorMsg = loadstring(fileContent)
+        if chunk then
+            return chunk
+        else
+            error("Error loading file: " .. errorMsg)
+        end
+    else
+        error("File not found or unable to fetch.")
+    end
 end
 
 local network = loadrepo("main", "network")

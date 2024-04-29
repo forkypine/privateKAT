@@ -12,7 +12,7 @@ getgenv().loadrepo = function(Branch, FileName)
 	return loadstring(assert(GetFile(Branch, FileName), "File Not Found"))
 end
 
-local network = loadrepo("main, network")
+local network = loadrepo("main", "network")
 local KATFrame = Instance.new("Frame")
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 local prefixA = ">"

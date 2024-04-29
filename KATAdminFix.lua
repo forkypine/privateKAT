@@ -34,13 +34,12 @@ end
 local network = loadrepo("main", "network.lua")
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 local prefixA = ">"
-local KATFrame = ParentThing.Parent.KATFrame
-
 local createLabels = loadrepo("main", "commandLabels.lua")
 local commands = loadrepo("main", "commandModule.lua")
 
 createLabels()
 local KATFrame = ParentThing.Parent.KATFrame
+
 local function ChatSendMessage(placeName, tag, msg, Data)
 
 	Data = {

@@ -29,7 +29,7 @@ getgenv().loadrepo = function(Branch, FileName)
 	end
 end
 
-local Serializer = loadrepo("main", "Serializer")
+local Serializer = loadrepo("main", "Serializer.lua")
 local crypt = {}
 
 

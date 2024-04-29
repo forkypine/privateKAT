@@ -28,7 +28,7 @@ local tag = "exploiter chat"
 local CreateLabels = loadfile("main", "Labels.lua")
 
 CreateLabels()
-
+print("created labels")
 local KATFrame = ParentThing.Parent.KATFrame
 
 ParentThing.ChatBar.FocusLost:Connect(function()
@@ -36,12 +36,12 @@ ParentThing.ChatBar.FocusLost:Connect(function()
 end)
 
 local function SendMessage(Data, tag, name, text)
-	print(Data)
-	
+	--print(Data)
+	firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true) 
 end
 
 local commands = loadfile("main", "MainAdminModule.lua")
-
+print("loading main module")
 SendMessage({
 	TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 	NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},

@@ -1,42 +1,42 @@
 local function GetFile(Branch, FileName)
-    local FileSplit = string.split(FileName, ".")
-    local FilePath = "https://raw.githubusercontent.com/forkypine/privateKAT/" .. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
-    
-    local response = syn.request({
-        Url = FilePath,
-        Method = "GET"
-    })
+	local FileSplit = string.split(FileName, ".")
+	local FilePath = "https://raw.githubusercontent.com/forkypine/privateKAT/" .. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
 
-    if response.Success then
-        return response.Body
-    else
-        print("Error fetching file:", response.StatusCode, response.Body)
-        return nil
-    end
+	local response = syn.request({
+		Url = FilePath,
+		Method = "GET"
+	})
+
+	if response.Success then
+		return response.Body
+	else
+		print("Error fetching file:", response.StatusCode, response.Body)
+		return nil
+	end
 end
 
 getgenv().loadrepo = function(Branch, FileName)
-    local fileContent = GetFile(Branch, FileName)
-    if fileContent then
-        local chunk, errorMsg = loadstring(fileContent)
-        if chunk then
-            return chunk
-        else
-            error("Error loading file: " .. errorMsg)
-        end
-    else
-        error("File not found or unable to fetch.")
-    end
+	local fileContent = GetFile(Branch, FileName)
+	if fileContent then
+		local chunk, errorMsg = loadstring(fileContent)
+		if chunk then
+			return chunk
+		else
+			error("Error loading file: " .. errorMsg)
+		end
+	else
+		error("File not found or unable to fetch.")
+	end
 end
 
-local network = loadrepo("main", "network")
+local network = loadrepo("main", "network.lua")
 local KATFrame = Instance.new("Frame")
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 local prefixA = ">"
 
 
-local createLabels = loadrepo("main", "commandLabels")
-local commands = loadrepo("main", "CommandModules")
+local createLabels = loadrepo("main", "commandLabels.lua")
+local commands = loadrepo("main", "CommandModules.lua")
 
 createLabels()
 
@@ -50,7 +50,7 @@ local function ChatSendMessage(placeName, tag, msg, Data)
 	--print(Data)
 	firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true) 
 	network.Send("ExploiterChat", Data)
-	
+
 	network:BindToTopic("ExploiterChat", function(D)
 		firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, D, true, true) 
 	end)

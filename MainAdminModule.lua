@@ -1,22 +1,48 @@
 local cache = {}
 local function getFile(Branch, FileName)
-	local FileSplit = string.split(File, ".")
-	local FileUrl = "https://raw.githubusercontent.com/forkypine/".. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
-	
-	if not cache[FileUrl] then
-		local Data = syn.reqiest({
-			Url = FileUrl,
-			Method = "GET"
-		})
-		
-		return Data.Body
-	else
-		return cache[FileUrl]
-	end
+    local FileSplit = string.split(FileName, ".")
+    local FileUrl = "https://raw.githubusercontent.com/forkypine/privateKAT".. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
+
+    print("AdminModule: Fetching file from:", FileUrl)
+
+    if not cache[FileUrl] then
+        print("File not found in cache. Fetching from URL.")
+        local Data = syn.request({
+            Url = FileUrl,
+            Method = "GET"
+        })
+
+        print("Request status code:", Data.StatusCode)
+
+        if Data.StatusCode == 200 then
+            cache[FileUrl] = Data.Body
+            print("File content cached.")
+        else
+            print("Failed to fetch file:", Data.Body)
+        end
+
+        return Data.Body
+    else
+        print("File found in cache.")
+        return cache[FileUrl]
+    end
 end
 
 getgenv().loadfile = function(Branch, FileName)
-	loadstring(assert(getFile(Branch, FileName), "requested module not found."))
+    print("Loading file:", FileName, "from branch:", Branch)
+    local fileContent = getFile(Branch, FileName)
+    
+    if fileContent then
+        print("Executing file content.")
+        local chunk, err = loadstring(assert(fileContent, "requested module not found."))
+        if chunk then
+            chunk()
+        else
+            print("Error loading file content:", err)
+        end
+    else
+        print("File content is nil. Execution aborted.")
+    end
 end
 
 local network = loadfile("main", "MainNetwork.lua")

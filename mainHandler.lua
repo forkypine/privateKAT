@@ -8,9 +8,9 @@ local function GetFile(Branch, FileName)
 	}).Body
 end
 
-getgenv().loadrepo(function(Branch, FileName)
+getgenv().loadrepo = function(Branch, FileName)
 	return loadstring(assert(GetFile(Branch, FileName), "File Not Found"))
-end)
+end
 
 local network = loadrepo("main, network")
 local KATFrame = Instance.new("Frame")

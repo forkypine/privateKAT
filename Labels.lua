@@ -243,6 +243,34 @@ local function CreateLabels()
 	tickspeed.Font = Enum.Font.Arial
 	tickspeed.TextXAlignment = Enum.TextXAlignment.Left
 	tickspeed.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+
+	
+	local settagcolor = Instance.new("TextLabel")
+	settagcolor.Name = "settagcolor"
+	settagcolor.Parent = KATFrame
+	settagcolor.BackgroundTransparency = 1
+	settagcolor.TextColor3 = Color3.new(1,1,1)
+	settagcolor.Text = ">settagcolor [red] [green] [blue]"
+	settagcolor.Position = UDim2.new(0,0,1.087,0)
+	settagcolor.Size = UDim2.new(0.39, 0, 0.057, 0)
+	settagcolor.TextSize = 14
+	settagcolor.Font = Enum.Font.Arial
+	settagcolor.TextXAlignment = Enum.TextXAlignment.Left
+	settagcolor.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+
+	local setnamecolor = Instance.new("TextLabel")
+	setnamecolor.Name = "setnamecolor"
+	setnamecolor.Parent = KATFrame
+	setnamecolor.BackgroundTransparency = 1
+	setnamecolor.TextColor3 = Color3.new(1,1,1)
+	setnamecolor.Text = ">setnamecolor [red] [green] [blue]"
+	setnamecolor.Position = UDim2.new(0,0,1.142,0)
+	setnamecolor.Size = UDim2.new(0.39, 0, 0.057, 0)
+	setnamecolor.TextSize = 14
+	setnamecolor.Font = Enum.Font.Arial
+	setnamecolor.TextXAlignment = Enum.TextXAlignment.Left
+	setnamecolor.FontFace = Font.new("rbxasset://fonts/families/Arial.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
 end
+
 
 return CreateLabels

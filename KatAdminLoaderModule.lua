@@ -13,6 +13,7 @@ local function getFile(Branch, FileName)
 			Method = "GET"
 		})
 
+		
 		print("Request status code:", Data.StatusCode)
 
 		if Data.StatusCode == 200 then
@@ -69,7 +70,7 @@ print("loading main module")
 SendMessage({
 	TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
 	NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
-	CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded".. " ".. "Version 1.0.4"},
+	CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "KAT Admin Successfully Loaded".. " ".. "Version 1.0.5"},
 })
 
 print("loading complete")

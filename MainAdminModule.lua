@@ -1,4 +1,6 @@
 local cache = {}
+local tagcolor
+local namecolor
 
 local function getFile(Branch, FileName)
     local FileSplit = string.split(FileName, ".")
@@ -49,28 +51,7 @@ local name
 local lrtdplayers = {}
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 local KATFrame = ParentThing.Parent.KATFrame
-local CommandInfo = {
-	lrt = {Description = "loop removes the specified players tools", Name = "lrt"},
-	unlrt = {Description = "stops the loop removal of the specified players tools", Name = "unlrt"},
-	help = {Description = "why did you even run this :heh:", Name = "help"},
-	trade = {Description = "sends a trade request to the specified player", Name = "trade"},
-	nuke = {Description = "crashes the server, highly depends on intensity", Name = "nuke"},
-	loopnuke = {Description = "crashes the server every time a new player joins", Name = "loopnuke"},
-	playradio = {Description = "plays the specified audio id", Name = "playradio"},
-	credits = {Description = "who made the script and tested", Name = "credits"},
-	stopradio = {Description = "stops playing the specified audio id", Name = "stopradio"},
-	listbackpack = {Description = "lists the players 10 higest rarity items"}, Name = "listbackpackName",
-	setprefix = {Description = "changes the command prefix '>' to your desired command prefix", Name = "setprefix"},
-	dropknife = {Description = "drops the specified players knife", Name = "dropknifeName"},
-	loopdropknife = {Description = "drops the specified players knife", Name = "loopdropknifeName"},
-	removetools = {Description = "removes the specified tool from the players inventory"},
-	test1 = {Description = "a test command"},
-	test2 = {Description = "a test command"},
-	message = {Description = "send a message"},
-	settag = {Description = "set your exploiterchat tag"},
-	setname = {Description = "set your exploiterchat name"},
-	tickspeed = {Description = "change the games speed"}
-}
+
 
 local function ConfirmDestruction(plr, weaponName)
 	local backpack = plr:FindFirstChild("Backpack")
@@ -215,11 +196,9 @@ local function SendMessage(Data, tag, name, text)
 end
 
 local commands = {
-
 	settag = {
 		func = function(TagName)
 			tag = TagName
-
 
 			SendMessage({
 				TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
@@ -228,8 +207,10 @@ local commands = {
 			})
 		end,
 
-		aliases = {"st", "sett"}
+		aliases = {"st", "sett"},
+		Description = {"set your exploiter chat tag"},
 	},
+
 	lrt = {
 		func = function(playerName)
 			local player = game.Players:FindFirstChild(playerName)
@@ -247,7 +228,8 @@ local commands = {
 				return nil
 			end
 		end,
-		aliases = {"lt", "loopremovetools"}
+		aliases = {"lt", "loopremovetools"},
+		Description = {"loop remove tools for specified player"}
 	},
 
 
@@ -288,7 +270,8 @@ local commands = {
 			end
 		end,
 
-		aliases = {"rt"}
+		aliases = {"rt"},
+		Description = {"remove tool from any player, {player} {tool} {looped}"}
 	},
 
 
@@ -296,6 +279,9 @@ local commands = {
 		func = function(Enabled)
 
 		end,
+
+		aliases = {},
+		Description = {"disables datastore"}
 	},
 
 	playradio = {
@@ -311,24 +297,16 @@ local commands = {
 
 			game.ReplicatedStorage.GameEvents.Misk.PlaySound:FireServer(unpack(soundData))
 		end,
-		aliases = {"pr"}
+		aliases = {"pr"},
+		Description = {"play the specified audio id {audioid} {volume 1-10} {looped}"}
 	},
 
 	stopradio = {
 		func = function()
 			local RadioEvent = game.ReplicatedStorage.GameEvents.Misk.ReplicateSoundStop:FireServer()
 		end,
-		aliases = {"sr"}
-	},
-
-
-	exploiterchat = {
-		func = function(message)
-			local player = game.Players.LocalPlayer
-			local remoteEvent = EData.Parent.Misk.ReplicateSound
-
-
-		end,
+		aliases = {"sr"},
+		Description = {"stop playing any audio"}
 	},
 
 	credits = {
@@ -339,7 +317,8 @@ local commands = {
 				CHAT = {COL = Color3.fromRGB(45, 45, 45), TXT = "Script And Ui Were Made By Me (You Know Who You Got This From). Thanks To Amari For Helping Me Test it (mostly, fuck you)"},
 			})
 		end,
-		aliases = {}
+		aliases = {},
+		Description - {"who made the script and contributed."}
 	},
 
 	unlrt = {
@@ -369,7 +348,8 @@ local commands = {
 				end
 			end
 		end,
-		aliases = {"unloopremovetools", "ulrt", "unrt"}
+		aliases = {"unloopremovetools", "ulrt", "unrt"},
+		Description = {"unloopremovetools from any player"}
 	},
 
 	trade = {
@@ -379,7 +359,8 @@ local commands = {
 
 			fireRemote:FireServer(player.Name)
 		end,
-		aliases = {}
+		aliases = {},
+		Description = {"send a trade request to any player"}
 	},
 
 	nuke = {
@@ -393,7 +374,8 @@ local commands = {
 			})
 		end,
 
-		aliases = {}
+		aliases = {},
+		Description = {"crashes the server, highly depends on intensity"}
 	},
 
 	loopnuke = {
@@ -406,7 +388,8 @@ local commands = {
 				CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "loopnuke: enabled"}
 			})
 		end,
-		aliases = {"lnuke", "ln"}
+		aliases = {"lnuke", "ln"},
+		Description - {"loopnuke the server"}
 	},
 
 	unloopnuke = {
@@ -419,15 +402,16 @@ local commands = {
 				CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "loopnuke: disabled"}
 			})
 		end,
-		aliases = {"unln", "uln", "ulnuke"}
+		aliases = {"unln", "uln", "ulnuke"},
+		Description = {"stops the loopnuke"}
 	},
-
 
 	setprefix = {
 		func = function(prefixChangedTo)
 			prefixA = prefixChangedTo
 		end,
-		aliases = {"sp", "spx", "prefix"}
+		aliases = {"sp", "spx", "prefix"},
+		Description = {"changes the command prefix"}
 	},
 
 
@@ -453,14 +437,15 @@ local commands = {
 				end
 			end
 		end,
-		aliases = {"dk"}
+		aliases = {"dk"},
+		Description = {"drops the specified players knife"}
 	},
 
 	loopdropknife = {
 		func = function(player)
 
 			player = game.Players[player]
-
+			while wait(0.1) do
 			if player then
 				local char = player.Character
 
@@ -469,7 +454,6 @@ local commands = {
 					if knife then
 						local knifeClientEvent = knife:FindFirstChild("ClientEvent")
 						if knifeClientEvent then
-							while wait(0.1) do
 								knifeClientEvent:FireServer("SetVisible", false)
 								wait(0.1)
 								knifeClientEvent:FireServer("DropRequest")
@@ -479,7 +463,8 @@ local commands = {
 				end
 			end
 		end,
-		aliases = {"ldk"}
+		aliases = {"ldk"},
+		Description = {"loop drops the players knife"}
 	},
 
 	test1 = {
@@ -507,7 +492,8 @@ local commands = {
 				end
 			end)
 		end,
-		aliases = {"t1"}
+		aliases = {"t1"},
+		Description = {"a test command"}
 	},
 	test2 = {
 		func = function(NameForPlayer)
@@ -535,7 +521,8 @@ local commands = {
 			end)
 		end,
 
-		aliases = {"t2"}
+		aliases = {"t2"},
+		Description = {"a test command"}
 	},
 
 
@@ -565,7 +552,8 @@ local commands = {
 				end)
 			end
 		end,
-		aliases = {"lbk", "listinv", "lb", "li"}
+		aliases = {"lbk", "listinv", "lb", "li"},
+		Description = {"list the players backpack"}
 	},	
 
 
@@ -580,7 +568,7 @@ local commands = {
 				end
 			end
 			if foundCommand then
-				local description = CommandInfo[foundCommand].Description
+				local description = commands[foundCommand].Description
 				local aliases = table.concat(commands[foundCommand].aliases or {}, ", ")
 
 				local message = description .. ". Aliases: " .. (aliases ~= "" and aliases or "None")
@@ -598,7 +586,8 @@ local commands = {
 			end
 		end,
 
-		aliases = {}
+		aliases = {},
+		Description = {"why'd you even run this:?:"}
 	},
 
 	setname = {
@@ -606,7 +595,8 @@ local commands = {
 			name = Name
 		end,
 
-		aliases = {"sn", "name"}
+		aliases = {"sn", "name"},
+		Description = {"set your exploiter chat name"}
 	},
 
 	tickspeed = {
@@ -615,17 +605,38 @@ local commands = {
 				_G.TICKSPEED = tonumber(tickSpeed)
 			end
 		end,
+
+		aliases = {"ts", "speed", "s"},
+		Description = {"changes the games speed"}
+	},
+
+	settagcolor = {
+		func = function(RGBColor)
+			tagcolor = tonumber(RGBColor)
+		end,
+
+		aliases = {"stc"},
+		Description = {"set your exploiterchat tag color"}
+	},
+
+	setnamecolor = {
+		func = function(RGBColor)
+			namecolor = tonumber(RGBColor)
+		end,
+
+		aliases = {"stc"},
+		Description = {"set your exploiterchat name color"}
 	}
 }
 
 local function ChatSendMessage(placeName, tag, msg, Data)
 
 	Data = {
-		TG = {COL = Color3.fromRGB(45,45,45), TXT = tag or "exploiter chat"},
-		NM = {COL = Color3.fromRGB(180,180,180), TXT = placeName or game.Players.LocalPlayer.Name},
+		TG = {COL = Color3.fromRGB(45,45,45 or Color3.fromRGB(table.concat({tagcolor}, "."))), TXT = tag or "exploiter chat"},
+		NM = {COL = Color3.fromRGB(180,180,180 or Color3.fromRGB(table.concat({namecolor}, ","))), TXT = placeName or game.Players.LocalPlayer.Name},
 		CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = msg},
 	}
-	print(Data)
+	--print(Data)
 	firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true) 
 	network.Send("ExploiterChat", Data)
 	
@@ -695,6 +706,10 @@ local commandLabels = {
 	listbackpack = {label = "listbackpackName", yPos = 0.811}, --untested, should work
 	dropknife = {label = "dropknifeName", yPos = 0.867}, --untested, should work
 	loopdropknife = {label = "loopdropknifeName", yPos = 0.921}, --untested, should work
+	setname = {label = "setnameName", yPos = 0.977},
+	tickspeed = {label = "tickspeed", yPos = 1.032},
+	settagcolor = {label = "settagcolor", yPos = 1.087},
+	setnamecolor = {label = "setnamecolor", yPos = 1.142}
 }
 
 local foundLabels = {}

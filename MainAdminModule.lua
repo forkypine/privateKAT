@@ -5,7 +5,7 @@ local function getFile(Branch, FileName)
     local FileSplit = string.split(FileName, ".")
     local FileUrl = "https://raw.githubusercontent.com/forkypine/privateKAT/".. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
 
-    print("Fetching file from:", FileUrl)
+    print("CommandHandler: Fetching file from:", FileUrl)
     print(FileName)
     if not cache[FileUrl] then
         print("File not found in cache. Fetching from URL.")

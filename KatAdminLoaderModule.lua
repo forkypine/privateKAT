@@ -1,12 +1,13 @@
 local cache = {}
 local function getFile(Branch, FileName)
 	local FileSplit = string.split(FileName, ".")
-	local FileUrl = "https://raw.githubusercontent.com/forkypine/privateKAT".. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
+	local FileUrl = "https://raw.githubusercontent.com/forkypine/privateKAT/".. table.concat({Branch or "main", FileName .. (#FileSplit > 1 and "" or ".lua")}, "/")
 
 	print("LoaderModule: Fetching file from:", FileUrl)
-
+	
 	if not cache[FileUrl] then
 		print("File not found in cache. Fetching from URL.")
+		print("FileName: "..FileName)
 		local Data = syn.request({
 			Url = FileUrl,
 			Method = "GET"
@@ -34,12 +35,7 @@ getgenv().loadfile = function(Branch, FileName)
 
 	if fileContent then
 		print("Executing file content.")
-		local chunk, err = loadstring(assert(fileContent, "requested module not found."))
-		if chunk then
-			chunk()
-		else
-			print("Error loading file content:", err)
-		end
+		loadstring(assert(fileContent, "requested module not found."))()
 	else
 		print("File content is nil. Execution aborted.")
 	end

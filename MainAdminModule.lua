@@ -48,7 +48,7 @@ local prefixA = ">"
 local name
 local lrtdplayers = {}
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
-
+local KATFrame = ParentThing.Parent.KATFrame
 local CommandInfo = {
 	lrt = {Description = "loop removes the specified players tools", Name = "lrt"},
 	unlrt = {Description = "stops the loop removal of the specified players tools", Name = "unlrt"},

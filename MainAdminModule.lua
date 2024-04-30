@@ -210,8 +210,8 @@ end
 local loopedrt = {}
 
 local function SendMessage(Data, tag, name, text)
-	print(Data)
-	--firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)  
+	--print(Data)
+	firesignal(game:GetService("ReplicatedStorage").GameEvents.Misk.Chatted.OnClientEvent, Data, true, true)  
 end
 
 local commands = {

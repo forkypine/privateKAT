@@ -1,5 +1,4 @@
 local cache = {}
-local cache = {}
 
 local function getFile(Branch, FileName)
     local FileSplit = string.split(FileName, ".")
@@ -677,5 +676,117 @@ ParentThing.ChatBar.FocusLost:Connect(function(enterPressed)
 		end
 	end
 end)
+
+
+local commandLabels = {
+	["7777"]= {label = "messageName", yPos = 0.095}, --semi works
+	playradio = {label = "radioName", yPos = 0.15}, --broke somehow!?
+	nuke = {label = "nukeName", yPos = 0.205}, --works
+	help = {label = "helpCommand", yPos = 0.26}, --works
+	settag = {label = "settagName", yPos = 0.315}, --this does not work
+	lrt = {label = "lrtName", yPos = 0.481}, --this does not work
+	credits = {label = "credits", yPos = 0.37}, --works
+	unlrt = {label = "unlrt", yPos = 0.425}, --works
+	trade = {label = "trade", yPos = 0.536}, --works
+	loopnuke = {label = "loopNuke", yPos = 0.591}, --works (?)
+	unloopnuke = {label = "unloopNuke", yPos = 0.646}, --works(?)
+	setprefix = {label = "prefixName", yPos = 0.701}, --works
+	stopradio = {label = "stopradio", yPos = 0.756}, --should work
+	listbackpack = {label = "listbackpackName", yPos = 0.811}, --untested, should work
+	dropknife = {label = "dropknifeName", yPos = 0.867}, --untested, should work
+	loopdropknife = {label = "loopdropknifeName", yPos = 0.921}, --untested, should work
+}
+
+local foundLabels = {}
+local notFoundLabels = {}
+
+ParentThing.ChatBar:GetPropertyChangedSignal("Text"):Connect(function()
+	local text = ParentThing.ChatBar.Text
+	local searchText = text:sub(#prefixA + 1):lower()
+	KATFrame.Visible = text:sub(1, #prefixA) == prefixA
+
+	foundLabels = {}
+	notFoundLabels = {}
+
+	if text == prefixA then
+		for command, data in pairs(commandLabels) do
+			KATFrame[data.label].Visible = true
+			KATFrame[data.label].Position = UDim2.new(0, 0, data.yPos, 0)
+		end
+	else
+		if searchText ~= "" then
+			local command, argument = searchText:match(">(%w+)%s*(.-)$")
+			if command then
+				for cmd, data in pairs(commandLabels) do
+					local match = false
+					local cmdData = commands[cmd]
+					if cmdData then
+						if cmd:lower() == command then
+							match = true
+						else
+							for _, alias in ipairs(cmdData.aliases or {}) do
+								if alias:lower() == command then
+									match = true
+									break
+								end
+							end
+						end
+					end
+					if match then
+						table.insert(foundLabels, cmd)
+					else
+						table.insert(notFoundLabels, cmd)
+					end
+				end
+			else 
+				local commandWithoutArg = searchText:match("(%S+)")
+				if commandWithoutArg then
+					for cmd, data in pairs(commandLabels) do
+						local match = false
+						local cmdData = commands[cmd]
+						if cmdData then
+							if cmd:lower():sub(1, #commandWithoutArg) == commandWithoutArg then
+								match = true
+							else
+								for _, alias in ipairs(cmdData.aliases or {}) do
+									if alias:lower():sub(1, #commandWithoutArg) == commandWithoutArg then
+										match = true
+										break
+									end
+								end
+							end
+						end
+						if match then
+							table.insert(foundLabels, cmd)
+						else
+							table.insert(notFoundLabels, cmd)
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local yPos = 0.095
+	if #foundLabels == 0 then
+		for command, data in pairs(commandLabels) do
+			KATFrame[data.label].Visible = true
+			KATFrame[data.label].Position = UDim2.new(0, 0, data.yPos, 0)
+		end
+	else
+		for i, command in ipairs(foundLabels) do
+			local labelData = commandLabels[command]
+			KATFrame[labelData.label].Visible = true
+			KATFrame[labelData.label].Position = UDim2.new(0, 0, yPos, 0)
+			yPos = yPos + 0.055
+		end
+
+		for _, command in ipairs(notFoundLabels) do
+			local labelData = commandLabels[command]
+			KATFrame[labelData.label].Visible = false
+		end
+	end
+end)
+
 
 return commands

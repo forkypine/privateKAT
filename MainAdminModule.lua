@@ -51,7 +51,8 @@ local name
 local lrtdplayers = {}
 local ParentThing = game.Players.LocalPlayer.PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame or script.Parent.Parent.Chat.Frame.ChatBarParentFrame.Frame.BoxFrame.Frame
 local KATFrame = ParentThing.Parent.KATFrame
-
+print("Sending Data Here:")
+network.Send("test", "hai:3")
 
 local function ConfirmDestruction(plr, weaponName)
 	local backpack = plr:FindFirstChild("Backpack")
@@ -213,21 +214,22 @@ local commands = {
 
 	lrt = {
 		func = function(playerName)
-			local player = game.Players:FindFirstChild(playerName)
-			if player then
-				lrtdplayers[playerName] = true
-
-				loopDelete(player)
-
-				SendMessage({
-					TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
-					NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
-					CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "loopedremovedtools for " .. player.Name},
-				})
-			else
-				return nil
-			end
-		end,
+			for _, plr in pairs(game.Players:GetPlayers()) do
+				local gamePlayer = game.Players[playerName]
+				if gamePlayer  == plr then
+					lrtdplayers[gamePlayer.Name] = true
+					loopDelete(gamePlayer)
+					SendMessage({
+						TG = {COL = Color3.fromRGB(45, 45, 45), TXT = "KAT Admin"},
+						NM = {COL = Color3.fromRGB(255, 255, 255), TXT = "System"},
+						CHAT = {COL = Color3.fromRGB(255, 255, 0), TXT = "loopedremovedtools for " .. gamePlayer.Name},
+					})
+					elseif not gamePlayer and playerName == "all" or playerName == "All" then
+						lrtdplayers[plr.Name] = true
+						loopDelete(plr)
+					end
+				end
+			end,
 		aliases = {"lt", "loopremovetools"},
 		Description = {"loop remove tools for specified player"}
 	},
@@ -235,8 +237,6 @@ local commands = {
 
 	removetools = {
 		func = function(player, tool, looped)
-
-
 
 			if tool == "revolver" then
 				tool = "Revolver"
@@ -318,7 +318,7 @@ local commands = {
 			})
 		end,
 		aliases = {},
-		Description - {"who made the script and contributed."}
+		Description = {"who made the script and contributed."}
 	},
 
 	unlrt = {
@@ -389,7 +389,7 @@ local commands = {
 			})
 		end,
 		aliases = {"lnuke", "ln"},
-		Description - {"loopnuke the server"}
+		Description = {"loopnuke the server"}
 	},
 
 	unloopnuke = {
@@ -443,29 +443,38 @@ local commands = {
 
 	loopdropknife = {
 		func = function(player)
-
 			player = game.Players[player]
-			while wait(0.1) do
-			if player then
-				local char = player.Character
 
-				if char then
-					local knife = char:FindFirstChild("Knife")
-					if knife then
-						local knifeClientEvent = knife:FindFirstChild("ClientEvent")
-						if knifeClientEvent then
+			local function knifeLoop()
+				while true do
+					if player then
+						local char = player.Character
+	
+						if char then
+							local knife = char:FindFirstChild("Knife")
+	
+							while not knife do
+								knife = char:FindFirstChild("Knife")
+								wait(0.1)
+							end
+	
+							local knifeClientEvent = knife:FindFirstChild("ClientEvent")
+							if knifeClientEvent then
 								knifeClientEvent:FireServer("SetVisible", false)
 								wait(0.1)
 								knifeClientEvent:FireServer("DropRequest")
 							end
 						end
 					end
+					wait(0.1)
 				end
 			end
+			coroutine.wrap(knifeLoop)()
 		end,
 		aliases = {"ldk"},
-		Description = {"loop drops the players knife"}
+		Description = {"loop drops the player's knife"}
 	},
+	
 
 	test1 = {
 		func = function(NameForPlayer)
@@ -803,5 +812,13 @@ ParentThing.ChatBar:GetPropertyChangedSignal("Text"):Connect(function()
 	end
 end)
 
+print("Receiving Data Here:")
 
+network:BindToTopic("test", function(Data)
+	print(Data)
+end)
+
+print("after receivied")
+
+print("script loaded with probably 0 erorrs, idk")
 return commands
